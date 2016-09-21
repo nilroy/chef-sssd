@@ -8,6 +8,7 @@ end
 default['sssd']['join_domain'] = true
 default['sssd']['enumerate'] = false
 default['sssd']['computer_name'] = nil
+default['sssd']['fqdn'] = nil
 default['sssd']['directory_name'] = nil
 
 # {

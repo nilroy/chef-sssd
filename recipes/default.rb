@@ -29,6 +29,8 @@ else
   computer_name = node['sssd']['computer_name']
 end
 
+fqdn = node['sssd']['fqdn']
+
 case node['platform']
 when 'centos'
   include_recipe 'yum-epel'
@@ -56,7 +58,11 @@ if node['sssd']['join_domain'] == true
   #   Ubuntu 14.04: due to necessary hacky work-arounds to this bug: https://bugs.launchpad.net/ubuntu/+source/realmd/+bug/1333694
   execute 'join_domain' do
     sensitive true
-    command "echo -n '#{realm_databag_contents['password']}' | adcli join --host-fqdn #{computer_name} -U #{realm_databag_contents['username']} #{node['sssd']['directory_name']} --stdin-password"
+    if fqdn
+      command "echo -n '#{realm_databag_contents['password']}' | adcli join --host-fqdn #{fqdn} --computer-name #{computer_name} -U #{realm_databag_contents['username']} #{node['sssd']['directory_name']} --stdin-password"
+    else
+      command "echo -n '#{realm_databag_contents['password']}' | adcli join --host-fqdn #{computer_name} -U #{realm_databag_contents['username']} #{node['sssd']['directory_name']} --stdin-password"
+    end
     not_if "klist -k | grep -i '@#{node['sssd']['directory_name']}'"
   end
 end
